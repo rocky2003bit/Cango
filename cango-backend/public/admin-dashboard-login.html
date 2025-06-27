@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <style>
+    body { font-family: Arial; margin:2em; }
+    .error { color: red; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard Login</h1>
+  <div id="login-form">
+    <input type="email" id="admin-email" placeholder="Enter admin email" required />
+    <input type="password" id="admin-password" placeholder="Password (optional)" />
+    <button onclick="login()">Login</button>
+    <div id="login-error" class="error"></div>
+  </div>
+  <div id="dashboard" class="hidden">
+    <button onclick="loadDashboard()">Load Dashboard Data</button>
+    <div id="result"></div>
+    <button onclick="logout()" style="margin-top:1em;">Logout</button>
+  </div>
+  <script>
+    let adminEmail = "";
+    function login() {
+      const email = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+      const error = document.getElementById('login-error');
+      error.textContent = "";
+
+      if (!email) {
+        error.textContent = "Email required";
+        return;
+      }
+      // In a real app, POST email/password to /api/admin/login and get a token
+      // For demo, just set email and show dashboard
+      adminEmail = email;
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+    }
+    function loadDashboard() {
+      const result = document.getElementById('result');
+      result.textContent = "Loading...";
+      fetch("http://localhost:5000/api/admin/dashboard/overview", {
+        headers: { "x-admin-email": adminEmail }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) result.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
+        else result.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+      })
+      .catch(e => result.innerHTML = '<span class="error">' + e + '</span>');
+    }
+    function logout() {
+      adminEmail = "";
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('login-form').classList.remove('hidden');
+      document.getElementById('admin-email').value = "";
+      document.getElementById('admin-password').value = "";
+      document.getElementById('result').textContent = "";
+      document.getElementById('login-error').textContent = "";
+    }
+  </script>
+</body>
+</html>
