@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard (Simple)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    .error { color: red; }
+    pre { background: #f4f4f4; padding: 1em; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard Overview</h1>
+  <button onclick="loadDashboard()">Load Dashboard Data</button>
+  <div id="result"></div>
+  <script>
+    function loadDashboard() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = "Loading...";
+      fetch("http://localhost:5000/api/admin/dashboard/overview", {
+        headers: {
+          "x-admin-email": "likith200305@gmail.com"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          resultDiv.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
+        } else {
+          resultDiv.innerHTML = "<h3>Dashboard Data:</h3><pre>" + JSON.stringify(data, null, 2) + "</pre>";
+        }
+      })
+      .catch(err => {
+        resultDiv.innerHTML = '<span class="error">Error: ' + err + '</span>';
+      });
+    }
+  </script>
+</body>
+</html>
