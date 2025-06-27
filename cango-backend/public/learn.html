@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cango Learn</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #f4f4f4;
+      padding: 20px;
+      height: 100vh;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+    .content-area {
+      flex: 1;
+      padding: 20px;
+    }
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Category Filter -->
+    <h3>Categories</h3>
+    <ul>
+      <li><input type="checkbox" class="category-filter" value="Self-help" /> Self-help</li>
+      <li><input type="checkbox" class="category-filter" value="Startup" /> Startup</li>
+      <li><input type="checkbox" class="category-filter" value="Coding" /> Coding</li>
+      <li><input type="checkbox" class="category-filter" value="Spirituality" /> Spirituality</li>
+    </ul>
+
+    <!-- Language Filter -->
+    <h3>Language</h3>
+    <ul>
+      <li><input type="checkbox" class="language-filter" value="English" /> English</li>
+      <li><input type="checkbox" class="language-filter" value="Hindi" /> Hindi</li>
+      <li><input type="checkbox" class="language-filter" value="Tamil" /> Tamil</li>
+    </ul>
+
+    <!-- Type Filter -->
+    <h3>Type</h3>
+    <ul>
+      <li><input type="checkbox" class="type-filter" value="pdf" /> PDF</li>
+      <li><input type="checkbox" class="type-filter" value="audio" /> Audio</li>
+    </ul>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content-area">
+    <h1>Explore Cango Learn</h1>
+    <!-- Cards will be loaded here by JS -->
+  </div>
+
+  <!-- JavaScript for filtering -->
+  <script>
+    let allContents = []; // All content from backend
+
+    // Load content when page is ready
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/contents')
+        .then(res => res.json())
+        .then(data => {
+          allContents = data;
+          renderContents(allContents);
+        });
+
+      // Add event listener to all filter checkboxes
+      document.querySelectorAll('.category-filter, .language-filter, .type-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          filterAndRender();
+        });
+      });
+    });
+
+    // Filter logic
+    function filterAndRender() {
+      const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+      const selectedLanguages = Array.from(document.querySelectorAll('.language-filter:checked')).map(cb => cb.value);
+      const selectedTypes = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
+
+      const filtered = allContents.filter(item => {
+        const matchCategory = selectedCategories.length === 0 || selectedCategories.includes(item.category);
+        const matchLanguage = selectedLanguages.length === 0 || selectedLanguages.includes(item.language);
+        const matchType = selectedTypes.length === 0 || selectedTypes.includes(item.type);
+        return matchCategory && matchLanguage && matchType;
+      });
+
+      renderContents(filtered);
+    }
+
+    // Render content cards
+    function renderContents(contents) {
+      const contentArea = document.querySelector('.content-area');
+      contentArea.innerHTML = '<h1>Explore Cango Learn</h1>';
+
+      contents.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2><a href="learn-details.html?id=${item.id}">${item.title}</a></h2>
+
+          <p>${item.description}</p>
+          <p><strong>Category:</strong> ${item.category} | <strong>Language:</strong> ${item.language}</p>
+          <p><strong>Type:</strong> ${item.type}</p>
+          <button onclick="orderNow('${item.title}')">Order Now</button>
+        `;
+        contentArea.appendChild(card);
+      });
+    }
+
+    // Order button action
+    function orderNow(title) {
+      alert(`✅ Order placed for "${title}"`);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Content Upload</title>
+</head>
+<body>
+  <h2>Upload New Content</h2>
+  <form id="uploadForm">
+    <input type="text" id="title" placeholder="Title" required><br><br>
+    <textarea id="description" placeholder="Description" required></textarea><br><br>
+    <input type="text" id="category" placeholder="Category" required><br><br>
+    <input type="text" id="language" placeholder="Language" required><br><br>
+    <input type="text" id="type" placeholder="Type (e.g., Learn or Originals)" required><br><br>
+    <input type="text" id="poster_url" placeholder="Poster URL" required><br><br>
+    <input type="email" id="adminEmail" placeholder="Admin Email" required><br><br>
+    <button type="submit">Upload</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const data = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        category: document.getElementById('category').value,
+        language: document.getElementById('language').value,
+        type: document.getElementById('type').value,
+        poster_url: document.getElementById('poster_url').value
+      };
+
+      const adminEmail = document.getElementById('adminEmail').value;
+
+      try {
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-email': adminEmail
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          message.textContent = '✅ ' + result.message;
+          message.style.color = 'green';
+        } else {
+          message.textContent = '❌ ' + (result.error || 'Upload failed');
+          message.style.color = 'red';
+        }
+      } catch (error) {
+        console.error(error);
+        message.textContent = '❌ Network or server error';
+        message.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>

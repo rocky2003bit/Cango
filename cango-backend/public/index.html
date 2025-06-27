@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cango</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #fdfdfd;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: flex-end;
+      padding: 15px 30px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .top-nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      color: #333;
+      transition: background-color 0.2s;
+    }
+    .top-nav a:hover {
+      background-color: #e0e0e0;
+    }
+
+    .center-content {
+      text-align: center;
+      margin-top: 120px;
+    }
+
+    .main-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 40px;
+    }
+
+    .main-buttons a {
+      padding: 20px 40px;
+      font-size: 20px;
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .main-buttons a:hover {
+      transform: translateY(-3px);
+    }
+
+    .learn-btn {
+      background-color: #007bff;
+    }
+
+    .original-btn {
+      background-color: #28a745;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Right Navigation -->
+  <div class="top-nav">
+    <a href="signin.html">Sign In</a>
+    <a href="signup.html">Sign Up</a>
+  </div>
+
+  <!-- Center Main Section -->
+  <div class="center-content">
+    <h1>Welcome to Cango</h1>
+    <p style="font-size: 18px;">Explore content designed to elevate your life and mind</p>
+
+    <div class="main-buttons">
+      <a href="learn.html" class="learn-btn">🚀 Cango Learn</a>
+      <a href="original.html" class="original-btn">🎬 Cango Original</a>
+    </div>
+  </div>
+
+</body>
+</html>

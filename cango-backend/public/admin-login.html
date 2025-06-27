@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login - Cango</title>
+</head>
+<body>
+  <h2>Admin Login</h2>
+  <form id="adminLoginForm">
+    <input type="email" id="email" placeholder="Admin Email" required><br><br>
+    <input type="password" id="password" placeholder="Password" required><br><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    const form = document.getElementById("adminLoginForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch("http://localhost:5000/api/admin/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          message.textContent = "✅ " + result.message;
+          message.style.color = "green";
+          // Later: redirect to admin dashboard page
+        } else {
+          message.textContent = "❌ " + (result.error || "Login failed");
+          message.style.color = "red";
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        message.textContent = "❌ Network or server error.";
+        message.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
