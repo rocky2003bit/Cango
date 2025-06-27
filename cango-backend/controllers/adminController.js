@@ -58,3 +58,39 @@ module.exports = {
   uploadContent,
   adminLogin
 };
+
+// Add this function after your existing exports or near the end
+const getAdminDashboardOverview = async (req, res) => {
+  try {
+    // Total users
+    const [[{ totalUsers }]] = await db.query('SELECT COUNT(*) AS totalUsers FROM users');
+    // New users in last 7 days
+    const [[{ newUsers7d }]] = await db.query(
+      "SELECT COUNT(*) AS newUsers7d FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
+    );
+    // Total content
+    const [[{ totalContent }]] = await db.query('SELECT COUNT(*) AS totalContent FROM contents');
+    // New content in last 7 days
+    const [[{ newContent7d }]] = await db.query(
+      "SELECT COUNT(*) AS newContent7d FROM contents WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
+    );
+
+    // Optionally add more stats here (e.g., most popular content, recent activity)
+
+    res.json({
+      totalUsers,
+      newUsers7d,
+      totalContent,
+      newContent7d
+    });
+  } catch (err) {
+    console.error("Dashboard overview error:", err);
+    res.status(500).json({ error: "Failed to fetch dashboard overview" });
+  }
+};
+
+// Export the new function
+module.exports = {
+  ...module.exports,
+  getAdminDashboardOverview
+};
