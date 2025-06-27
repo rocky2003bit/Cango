@@ -1,6 +1,6 @@
 const express = require('express');
-const router = express.Router();
-const { uploadContent, adminLogin } = require('../controllers/adminController');
+const router = express.Router(); 
+const { uploadContent, adminLogin, getAdminDashboardOverview } = require('../controllers/adminController');
 const isAdmin = require('../middlewares/isAdmin');
 
 // New: Admin login route
