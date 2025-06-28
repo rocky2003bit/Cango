@@ -13,27 +13,101 @@
   <h1>Admin Dashboard Overview</h1>
   <button onclick="loadDashboard()">Load Dashboard Data</button>
   <div id="result"></div>
-  <script>
-    function loadDashboard() {
-      const resultDiv = document.getElementById('result');
-      resultDiv.textContent = "Loading...";
-      fetch("http://localhost:5000/api/admin/dashboard/overview", {
-        headers: {
-          "x-admin-email": "likith200305@gmail.com"
+  <br><br>
+  <button onclick="loadUsers()">View All Users</button>
+  <div id="users"></div>
+  <button onclick="goToContentManager()">📦 Manage Uploaded Content</button>
+
+
+  
+  <!-- ✅ Paste the logout button and script here -->
+  <button onclick="logout()">Logout</button>
+
+   <script>
+  // 🔒 Check if admin is logged in
+  const adminEmail = localStorage.getItem("adminEmail");
+  if (!adminEmail) {
+    alert("❌ Please login as admin first.");
+    window.location.href = "admin-dashboard-login.html";
+  }
+
+  function loadDashboard() {
+    const resultDiv = document.getElementById('result');
+    resultDiv.textContent = "Loading...";
+
+    fetch("http://localhost:5000/api/admin/dashboard/overview", {
+      headers: {
+        "x-admin-email": adminEmail
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        resultDiv.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
+      } else {
+        resultDiv.innerHTML = "<h3>Dashboard Data:</h3><pre>" + JSON.stringify(data, null, 2) + "</pre>";
+      }
+    })
+    .catch(err => {
+      resultDiv.innerHTML = '<span class="error">Error: ' + err + '</span>';
+    });
+  }
+   // ... existing functions like loadDashboard()
+
+  function loadUsers() {
+    const usersDiv = document.getElementById('users');
+    usersDiv.innerHTML = "Loading users...";
+
+    fetch("http://localhost:5000/api/admin/users", {
+      headers: {
+        "x-admin-email": localStorage.getItem("adminEmail")
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        usersDiv.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
+      } else {
+        if (data.length === 0) {
+          usersDiv.innerHTML = '<p>No users found.</p>';
+          return;
         }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          resultDiv.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
-        } else {
-          resultDiv.innerHTML = "<h3>Dashboard Data:</h3><pre>" + JSON.stringify(data, null, 2) + "</pre>";
-        }
-      })
-      .catch(err => {
-        resultDiv.innerHTML = '<span class="error">Error: ' + err + '</span>';
-      });
+
+        let tableHTML = `
+          <h3>Registered Users</h3>
+          <table border="1" cellpadding="10" style="border-collapse: collapse;">
+            <tr>
+              <th>ID</th><th>Name</th><th>Email</th><th>Is Admin?</th><th>Created At</th>
+            </tr>
+        `;
+        data.forEach(user => {
+          tableHTML += `
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.name}</td>
+              <td>${user.email}</td>
+              <td>${user.is_admin === 1 ? 'Yes' : 'No'}</td>
+              <td>${new Date(user.created_at).toLocaleString()}</td>
+            </tr>
+          `;
+        });
+        tableHTML += '</table>';
+        usersDiv.innerHTML = tableHTML;
+      }
+    })
+    .catch(err => {
+      usersDiv.innerHTML = '<span class="error">Error: ' + err + '</span>';
+    });
+  }
+  
+    function logout() {
+      localStorage.removeItem("adminEmail");
+      window.location.href = "admin-dashboard-login.html";
     }
-  </script>
+    function goToContentManager() {
+    window.location.href = "admin-content-manager.html";
+  }
+</script>
+
 </body>
 </html>

@@ -10,10 +10,10 @@ const uploadContent = async (req, res) => {
   }
 
   try {
-    await db.query(
-      'INSERT INTO contents (title, description, category, language, type, poster_url) VALUES (?, ?, ?, ?, ?, ?)',
-      [title, description, category, language, type, poster_url]
-    );
+     await db.query(
+  'INSERT INTO contents (title, description, category, language, type, poster_url, visible) VALUES (?, ?, ?, ?, ?, ?, ?)',
+  [title, description, category, language, type, poster_url, 1]
+);
     res.status(201).json({ message: 'Content uploaded successfully' });
   } catch (err) {
     console.error(err);
@@ -89,8 +89,48 @@ const getAdminDashboardOverview = async (req, res) => {
   }
 };
 
+ 
+const getAllUsers = async (req, res) => {
+  try {
+    const [users] = await db.query('SELECT id, name, email FROM users');
+    res.json(users);
+  } catch (err) {
+    console.error("Get all users error:", err);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+};
+
+const getAllUploadedContent = async (req, res) => {
+  try {
+    const [contents] = await db.query("SELECT * FROM contents ORDER BY created_at DESC");
+    res.json(contents);
+  } catch (err) {
+    console.error("Failed to fetch content list:", err);
+    res.status(500).json({ error: "Failed to fetch contents" });
+  }
+};
+const deleteContent = async (req, res) => {
+  const contentId = req.params.id;
+  try {
+    const [result] = await db.query("DELETE FROM contents WHERE id = ?", [contentId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Content not found" });
+    }
+    res.json({ message: "Content deleted successfully" });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Server error deleting content" });
+  }
+};
+
+
 // Export the new function
 module.exports = {
   ...module.exports,
-  getAdminDashboardOverview
+  getAdminDashboardOverview,
+  getAllUsers,
+  getAllUploadedContent,
+  deleteContent,
+
+
 };

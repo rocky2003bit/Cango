@@ -64,3 +64,12 @@ app.get('/api/contents/:id', async (req, res) => {
   }
 });
 
+app.get('/api/admin/contents', async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM contents ORDER BY created_at DESC");
+    res.json(results);
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ error: "Failed to fetch all contents" });
+  }
+});
