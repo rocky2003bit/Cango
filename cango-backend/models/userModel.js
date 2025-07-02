@@ -1,17 +1,16 @@
 const db = require('../config/db');
 
 const findUserByEmail = async (email) => {
-  const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+  const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
   return rows;
-  
 };
 
-const createUser = async (name, email, password) => {
-  const [result] = await db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, password]);
-  return result;
+const createUser = async (name, email, hashedPassword, country, state, city, whatsapp) => {
+  const sql = `
+    INSERT INTO users (name, email, password, country, state, city, whatsapp)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+  await db.execute(sql, [name, email, hashedPassword, country, state, city, whatsapp]);
 };
 
-module.exports = {
-  findUserByEmail,
-  createUser
-};
+module.exports = { findUserByEmail, createUser };

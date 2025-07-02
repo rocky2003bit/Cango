@@ -3,9 +3,9 @@ const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 
 const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, country, state, city, whatsapp } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !country || !state || !city || !whatsapp) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
@@ -16,18 +16,17 @@ const signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await userModel.createUser(name, email, hashedPassword);
+    await userModel.createUser(name, email, hashedPassword, country, state, city, whatsapp);
 
     res.status(201).json({ message: 'Signup successful' });
-    
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Signup failed' });
   }
 };
 
-
- const signin = async (req, res) => {
+const signin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -57,6 +56,5 @@ const signup = async (req, res) => {
     res.status(500).json({ error: 'Signin failed' });
   }
 };
-
 
 module.exports = { signup, signin };
