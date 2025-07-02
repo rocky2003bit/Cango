@@ -6,10 +6,12 @@
 </head>
 <body>
   <h2>Signin</h2>
+
   <form id="signinForm">
     <input type="email" id="email" placeholder="Email" required /><br><br>
     <input type="password" id="password" placeholder="Password" required /><br><br>
     <button type="submit">Signin</button>
+    <p style="margin-top: 10px;">Not registered? <a href="signup.html">Signup here</a></p>
   </form>
 
   <p id="message"></p>
@@ -38,6 +40,15 @@
         if (response.ok) {
           message.textContent = "✅ " + result.message;
           message.style.color = "green";
+
+          // ✅ Save user info in localStorage
+          localStorage.setItem("userName", result.user.name);
+          localStorage.setItem("userEmail", result.user.email);
+
+          // ✅ Redirect to homepage after short delay
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
         } else {
           message.textContent = "❌ " + (result.error || "Signin failed");
           message.style.color = "red";

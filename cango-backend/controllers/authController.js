@@ -19,6 +19,7 @@ const signup = async (req, res) => {
     await userModel.createUser(name, email, hashedPassword);
 
     res.status(201).json({ message: 'Signup successful' });
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Signup failed' });
@@ -26,7 +27,7 @@ const signup = async (req, res) => {
 };
 
 
-const signin = async (req, res) => {
+ const signin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -35,16 +36,27 @@ const signin = async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, users[0].password);
+    const user = users[0];
+
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    res.status(200).json({ message: 'Signin successful' });
+    // ✅ Send user data back to frontend
+    res.status(200).json({
+      message: 'Signin successful',
+      user: {
+        name: user.name,
+        email: user.email
+      }
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Signin failed' });
   }
 };
+
 
 module.exports = { signup, signin };

@@ -5,6 +5,7 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const db = require('./config/db');
 const adminRoutes = require('./routes/adminRoutes');
+const locationRoutes = require('./routes/locationRoutes');
 
 
 dotenv.config();
@@ -72,4 +73,5 @@ app.get('/api/admin/contents', async (req, res) => {
     console.error("Database error:", err);
     res.status(500).json({ error: "Failed to fetch all contents" });
   }
+  app.use('/api/location', locationRoutes);
 });

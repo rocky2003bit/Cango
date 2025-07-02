@@ -5,85 +5,179 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cango</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #fdfdfd;
+      background-color: #fefefe;
     }
-    .top-nav {
+
+    /* Top Header Section */
+    .top-header {
       display: flex;
-      justify-content: flex-end;
-      padding: 15px 30px;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .top-nav a {
-      margin-left: 20px;
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .logo-title span.logo {
+      font-size: 26px;
+      margin-right: 8px;
+      color: #007bff;
+    }
+
+    .auth-buttons a {
       text-decoration: none;
-      font-size: 14px;
+      margin-left: 16px;
       padding: 8px 16px;
-      border-radius: 5px;
       background-color: #f0f0f0;
+      border-radius: 5px;
       color: #333;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .auth-buttons a:hover {
+      background-color: #ddd;
+    }
+
+    /* Slideshow Section */
+    .slideshow-container {
+      width: 100%;
+      height: 400px;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+    }
+
+    .slide {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    /* Navigation Menu */
+    .main-nav {
+      background-color: #fafafa;
+      padding: 12px 0;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    .main-nav a {
+      margin: 0 16px;
+      text-decoration: none;
+      color: #333;
+      font-size: 15px;
+      padding: 6px 12px;
       transition: background-color 0.2s;
     }
-    .top-nav a:hover {
+
+    .main-nav a:hover {
       background-color: #e0e0e0;
-    }
-
-    .center-content {
-      text-align: center;
-      margin-top: 120px;
-    }
-
-    .main-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      margin-top: 40px;
-    }
-
-    .main-buttons a {
-      padding: 20px 40px;
-      font-size: 20px;
-      color: white;
-      border-radius: 10px;
-      text-decoration: none;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-
-    .main-buttons a:hover {
-      transform: translateY(-3px);
-    }
-
-    .learn-btn {
-      background-color: #007bff;
-    }
-
-    .original-btn {
-      background-color: #28a745;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Right Navigation -->
-  <div class="top-nav">
-    <a href="signin.html">Sign In</a>
-    <a href="signup.html">Sign Up</a>
-  </div>
-
-  <!-- Center Main Section -->
-  <div class="center-content">
-    <h1>Welcome to Cango</h1>
-    <p style="font-size: 18px;">Explore content designed to elevate your life and mind</p>
-
-    <div class="main-buttons">
-      <a href="learn.html" class="learn-btn">🚀 Cango Learn</a>
-      <a href="original.html" class="original-btn">🎬 Cango Original</a>
+  <!-- 🔝 Top Header -->
+  <div class="top-header">
+    <div class="logo-title">
+      <span class="logo">🌟</span> Cango
     </div>
+     <div class="auth-buttons">
+  <a href="signin.html" id="signinBtn">Sign In</a>
+  <a href="signup.html" id="signupBtn">Sign Up</a>
+  <span id="userInfo" style="display: none;">
+    👋 Welcome, <span id="username"></span>
+    <button onclick="logout()">Logout</button>
+  </span>
+</div>
+
   </div>
+
+  <!-- 🎞️ Wallpaper Slideshow -->
+  <div class="slideshow-container">
+    <img src="wall1.jpg" class="slide active" />
+    <img src="wall2.jpg" class="slide" />
+    <img src="wall3.jpg" class="slide" />
+  </div>
+  <!-- 🧭 Main Navigation -->
+  <div class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="learn.html">Cango Learn</a>
+    <a href="original.html">Cango Original</a>
+    <a href="#">About Us</a>
+    <a href="#">My Account</a>
+  </div>
+
+  <!-- 📦 Future Rows Placeholder (Design Later) -->
+  <div style="padding: 40px; text-align: center;">
+    <h2>Featured Content (Coming Soon)</h2>
+    <p>This area will showcase rows of curated content just like Netflix style.</p>
+  </div>
+
+  <!-- 📜 Slideshow Script -->
+  <script>
+    let slideIndex = 0;
+    const slides = document.querySelectorAll(".slide");
+
+    function showSlides() {
+      slides.forEach((slide, index) => {
+        slide.classList.remove("active");
+        if (index === slideIndex) {
+          slide.classList.add("active");
+        }
+      });
+      slideIndex = (slideIndex + 1) % slides.length;
+    }
+
+    setInterval(showSlides, 2000); // every 2 seconds
+
+    const userName = localStorage.getItem("userName");
+  const email = localStorage.getItem("userEmail");
+
+  const signinBtn = document.getElementById("signinBtn");
+  const signupBtn = document.getElementById("signupBtn");
+  const userInfo = document.getElementById("userInfo");
+  const usernameSpan = document.getElementById("username");
+
+  if (userName && email) {
+    // User is signed in
+    signinBtn.style.display = "none";
+    signupBtn.style.display = "none";
+    userInfo.style.display = "inline-block";
+    usernameSpan.textContent = userName;
+  }
+
+  function logout() {
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
+    window.location.href = "index.html"; // Refresh to show Signin/Signup again
+  }
+  </script>
 
 </body>
 </html>

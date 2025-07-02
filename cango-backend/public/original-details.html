@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Original Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      background-color: #f9f9f9;
+    }
+    .poster {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    .meta {
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .description {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="content"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const contentId = params.get("id");
+
+    if (!contentId) {
+      document.getElementById("content").innerHTML = "<p>❌ Invalid content ID.</p>";
+    } else {
+      fetch(`/api/contents/${contentId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.type !== "Originals") {
+            document.getElementById("content").innerHTML = "<p>❌ Cango Original not found.</p>";
+            return;
+          }
+
+          document.getElementById("content").innerHTML = `
+            <img src="${data.poster_url}" alt="Poster" class="poster">
+            <h1>${data.title}</h1>
+            <div class="meta">
+              <strong>Genre:</strong> ${data.category} |
+              <strong>Language:</strong> ${data.language} |
+              <strong>Editor’s Pick:</strong> ${data.editor_pick}
+            </div>
+            <div class="description">${data.description}</div>
+            <button onclick="orderNow('${data.title}')">Order Now</button>
+          `;
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("content").innerHTML = "<p>❌ Error loading content.</p>";
+        });
+    }
+
+    function orderNow(title) {
+      alert(`✅ Order placed for "${title}"`);
+    }
+  </script>
+</body>
+</html>

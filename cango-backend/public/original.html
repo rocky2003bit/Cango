@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cango Learn</title>
+  <title>Cango Originals</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -58,20 +58,21 @@
 
   <!-- Sidebar -->
   <div class="sidebar">
-    <h3>Categories</h3>
+    <h3>📚 Genres</h3>
     <ul>
-      <li><input type="checkbox" class="category-filter" value="Self-help" /> Self-help</li>
-      <li><input type="checkbox" class="category-filter" value="Startup" /> Startup</li>
-      <li><input type="checkbox" class="category-filter" value="Coding" /> Coding</li>
-      <li><input type="checkbox" class="category-filter" value="Spirituality" /> Spirituality</li>
-      <li><input type="checkbox" class="category-filter" value="Productivity" /> Productivity</li>
-      <li><input type="checkbox" class="category-filter" value="Money & Finance" /> Money & Finance</li>
-      <li><input type="checkbox" class="category-filter" value="Mindfulness" /> Mindfulness</li>
-      <li><input type="checkbox" class="category-filter" value="Exam Prep" /> Exam Prep</li>
-      <li><input type="checkbox" class="category-filter" value="Relationships" /> Relationships</li>
+      <li><input type="checkbox" class="category-filter" value="Motivational Stories" /> Motivational Stories</li>
+      <li><input type="checkbox" class="category-filter" value="Real-Life Incidents" /> Real-Life Incidents</li>
+      <li><input type="checkbox" class="category-filter" value="Fictional Series" /> Fictional Series</li>
+      <li><input type="checkbox" class="category-filter" value="Mythology & History" /> Mythology & History</li>
+      <li><input type="checkbox" class="category-filter" value="Sci-Fi & Futuristic" /> Sci-Fi & Futuristic</li>
+      <li><input type="checkbox" class="category-filter" value="Psychological & Mystery" /> Psychological & Mystery</li>
+      <li><input type="checkbox" class="category-filter" value="Comedy & Fun" /> Comedy & Fun</li>
+      <li><input type="checkbox" class="category-filter" value="Horror & Thriller" /> Horror & Thriller</li>
+      <li><input type="checkbox" class="category-filter" value="Romantic & Heartfelt" /> Romantic & Heartfelt</li>
+      <li><input type="checkbox" class="category-filter" value="Dark & Experimental" /> Dark & Experimental</li>
     </ul>
 
-    <h3>Language</h3>
+    <h3>🌍 Languages</h3>
     <ul>
       <li><input type="checkbox" class="language-filter" value="English" /> English</li>
       <li><input type="checkbox" class="language-filter" value="Hindi" /> Hindi</li>
@@ -80,24 +81,26 @@
       <li><input type="checkbox" class="language-filter" value="Kannada" /> Kannada</li>
       <li><input type="checkbox" class="language-filter" value="Bengali" /> Bengali</li>
       <li><input type="checkbox" class="language-filter" value="Marathi" /> Marathi</li>
+      <li><input type="checkbox" class="language-filter" value="Malayalam" /> Malayalam</li>
+      <li><input type="checkbox" class="language-filter" value="Urdu" /> Urdu</li>
     </ul>
 
-    <h3>Format</h3>
+    <h3>🚀 Editor’s Picks</h3>
     <ul>
-      <li><input type="checkbox" class="format-filter" value="pdf" /> PDF</li>
-      <li><input type="checkbox" class="format-filter" value="audio" /> Audio</li>
+      <li><input type="checkbox" class="type-filter" value="Trending Now" /> Trending Now</li>
+      <li><input type="checkbox" class="type-filter" value="New Releases" /> New Releases</li>
+      <li><input type="checkbox" class="type-filter" value="Most Ordered" /> Most Ordered</li>
     </ul>
   </div>
 
   <!-- Content Area -->
   <div class="content-area">
-    <h1>Explore Cango Learn</h1>
+    <h1>Explore Cango Originals</h1>
     <div id="content-rows">
-      <!-- JS will render content rows grouped by category here -->
+      <!-- JS will render rows here -->
     </div>
   </div>
-
-  <!-- JavaScript -->
+  <!-- JavaScript to fetch & render grouped content -->
   <script>
     let allContents = [];
 
@@ -105,11 +108,11 @@
       fetch('/api/contents')
         .then(res => res.json())
         .then(data => {
-          allContents = data.filter(item => item.type === 'Learn');
+          allContents = data.filter(item => item.type === 'Originals');
           renderGroupedContent(allContents);
         });
 
-      document.querySelectorAll('.category-filter, .language-filter, .format-filter').forEach(checkbox => {
+      document.querySelectorAll('.category-filter, .language-filter, .type-filter').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
           filterAndRender();
         });
@@ -119,13 +122,13 @@
     function filterAndRender() {
       const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
       const selectedLanguages = Array.from(document.querySelectorAll('.language-filter:checked')).map(cb => cb.value);
-      const selectedFormats = Array.from(document.querySelectorAll('.format-filter:checked')).map(cb => cb.value);
+      const selectedTypes = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
 
       const filtered = allContents.filter(item => {
         const matchCategory = selectedCategories.length === 0 || selectedCategories.includes(item.category);
         const matchLanguage = selectedLanguages.length === 0 || selectedLanguages.includes(item.language);
-        const matchFormat = selectedFormats.length === 0 || selectedFormats.includes(item.format);
-        return matchCategory && matchLanguage && matchFormat;
+        const matchType = selectedTypes.length === 0 || selectedTypes.includes(item.editor_pick);
+        return matchCategory && matchLanguage && matchType;
       });
 
       renderGroupedContent(filtered);
@@ -141,7 +144,7 @@
       });
 
       const container = document.getElementById('content-rows');
-      container.innerHTML = '';
+      container.innerHTML = ''; // Clear existing
 
       for (const category in grouped) {
         const section = document.createElement('div');
@@ -161,7 +164,8 @@
             <img src="${item.poster_url}" alt="Poster">
             <h3><a href="learn-details.html?id=${item.id}" style="text-decoration: none; color: black;">${item.title}</a></h3>
             <p style="font-size: 14px;">${item.description}</p>
-            <p style="font-size: 13px;"><strong>Format:</strong> ${item.format}</p>
+            <p><strong>Language:</strong> ${item.language}</p>
+            <p><strong>Editor’s Pick:</strong> ${item.editor_pick}</p>
             <button onclick="orderNow('${item.title}')">Order Now</button>
           `;
           row.appendChild(card);
@@ -176,6 +180,6 @@
       alert(`✅ Order placed for "${title}"`);
     }
   </script>
-
 </body>
 </html>
+

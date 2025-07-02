@@ -17,6 +17,8 @@
   <button onclick="loadUsers()">View All Users</button>
   <div id="users"></div>
   <button onclick="goToContentManager()">📦 Manage Uploaded Content</button>
+  <button onclick="goToUpload()">📤 Upload New Content</button>
+
 
 
   
@@ -30,6 +32,7 @@
     alert("❌ Please login as admin first.");
     window.location.href = "admin-dashboard-login.html";
   }
+     
 
   function loadDashboard() {
     const resultDiv = document.getElementById('result');
@@ -107,6 +110,10 @@
     function goToContentManager() {
     window.location.href = "admin-content-manager.html";
   }
+  function goToUpload() {
+  window.location.href = "admin-upload.html";
+}
+
 </script>
 
 </body>
