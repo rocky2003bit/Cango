@@ -1,8 +1,23 @@
+<!-- PART 1: <head> + Form Layout -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Signup | Cango</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input, select {
+      padding: 8px;
+      width: 300px;
+    }
+    label {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <h2>Signup Form</h2>
@@ -11,135 +26,155 @@
     <input type="email" id="email" placeholder="Email" required><br><br>
     <input type="password" id="password" placeholder="Password" required><br><br>
 
-    <select id="country" required>
-      <option value="">Select Country</option>
-    </select><br><br>
+    <label for="countrySelect">Country:</label><br>
+    <select id="countrySelect" required></select><br><br>
 
-    <select id="state" required>
-      <option value="">Select State</option>
-    </select><br><br>
+    <label for="stateSelect">State:</label><br>
+    <select id="stateSelect" required></select><br><br>
 
-    <select id="city" required>
-      <option value="">Select City</option>
-    </select><br><br>
+    <label for="citySelect">City:</label><br>
+    <select id="citySelect" required></select><br><br>
 
+    <label for="whatsapp">WhatsApp Number:</label><br>
     <div>
       <span id="countryCode">+</span>
-      <input type="text" id="whatsapp" placeholder="WhatsApp Number" required>
+      <input type="tel" id="whatsapp" placeholder="Enter WhatsApp Number" required />
     </div><br><br>
 
     <button type="submit">Signup</button>
   </form>
 
   <p id="message"></p>
+<!-- ✅ PART 2: JS to Dynamically Load Countries, States, Cities -->
+<script>
+  const countrySelect = document.getElementById("countrySelect");
+  const stateSelect = document.getElementById("stateSelect");
+  const citySelect = document.getElementById("citySelect");
+  const countryCode = document.getElementById("countryCode");
 
-  <script>
-    const countryEl = document.getElementById('country');
-    const stateEl = document.getElementById('state');
-    const cityEl = document.getElementById('city');
-    const countryCodeEl = document.getElementById('countryCode');
-
-    async function loadCountries() {
-      const res = await fetch('/api/locations/countries');
+  async function loadCountries() {
+    try {
+      const res = await fetch("/api/location/countries");
       const countries = await res.json();
-      countries.forEach(country => {
-        const opt = document.createElement('option');
-        opt.value = country;
-        opt.textContent = country;
-        countryEl.appendChild(opt);
+
+      countrySelect.innerHTML = `<option value="">-- Select Country --</option>`;
+      countries.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.name;
+        opt.textContent = c.name;
+        opt.dataset.code = c.phonecode; // used for countryCode display
+        countrySelect.appendChild(opt);
       });
+    } catch (err) {
+      console.error("❌ Failed to load countries", err);
+    }
+  }
+
+  countrySelect.addEventListener("change", async function () {
+    const selectedCountry = this.value;
+    const phonecode = this.selectedOptions[0].dataset.code || "";
+    countryCode.textContent = phonecode ? "+" + phonecode : "+";
+
+    try {
+      const res = await fetch(`/api/location/states/${selectedCountry}`);
+      const states = await res.json();
+
+      stateSelect.innerHTML = `<option value="">-- Select State --</option>`;
+      citySelect.innerHTML = `<option value="">-- Select City --</option>`;
+
+      states.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.name;
+        opt.textContent = s.name;
+        stateSelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("❌ Failed to load states", err);
+    }
+  });
+
+  stateSelect.addEventListener("change", async function () {
+    const selectedState = this.value;
+    try {
+      const res = await fetch(`/api/location/cities/${selectedState}`);
+      const cities = await res.json();
+
+      citySelect.innerHTML = `<option value="">-- Select City --</option>`;
+      cities.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.name;
+        opt.textContent = c.name;
+        citySelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("❌ Failed to load cities", err);
+    }
+  });
+
+  window.addEventListener("DOMContentLoaded", loadCountries);
+</script>
+<script>
+  // 👇 Signup Form Submission
+  const form = document.getElementById('signupForm');
+  const message = document.getElementById('message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const country = countrySelect.value;
+    const state = stateSelect.value;
+    const city = citySelect.value;
+    const whatsapp = whatsappInput.value.trim();
+    const code = countryCodeSpan.textContent;
+
+    if (!name || !email || !password || !country || !state || !city || !whatsapp) {
+      message.textContent = '❌ Please fill in all fields.';
+      message.style.color = 'red';
+      return;
     }
 
-    countryEl.addEventListener('change', async () => {
-      const country = countryEl.value;
-      if (!country) return;
+    if (!/^[0-9]{8,14}$/.test(whatsapp)) {
+      message.textContent = '❌ Enter a valid WhatsApp number.';
+      message.style.color = 'red';
+      return;
+    }
 
-      // Set country code
-      const countryRes = await fetch('/api/locations/countries');
-      const allCountries = await countryRes.json();
-
-      // Fetch country code for display (optional - depends on your DB)
-      const response = await fetch(`/api/locations/states/${country}`);
-      const states = await response.json();
-      stateEl.innerHTML = '<option value="">Select State</option>';
-      cityEl.innerHTML = '<option value="">Select City</option>';
-      states.forEach(state => {
-        const opt = document.createElement('option');
-        opt.value = state;
-        opt.textContent = state;
-        stateEl.appendChild(opt);
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          country,
+          state,
+          city,
+          whatsapp: code + whatsapp
+        })
       });
 
-      // Try to get dial code if needed (optional enhancement)
-      const codeRes = await fetch('/api/countries-with-code.json'); // future enhancement
-      // For now just default to +91 for demo
-      if (country === 'India') countryCodeEl.textContent = '+91';
-      else countryCodeEl.textContent = '+';
-    });
+      const result = await response.json();
 
-    stateEl.addEventListener('change', async () => {
-      const state = stateEl.value;
-      const response = await fetch(`/api/locations/cities/${state}`);
-      const cities = await response.json();
-      cityEl.innerHTML = '<option value="">Select City</option>';
-      cities.forEach(city => {
-        const opt = document.createElement('option');
-        opt.value = city;
-        opt.textContent = city;
-        cityEl.appendChild(opt);
-      });
-    });
-
-    loadCountries();
-
-    // Signup Form Submission
-    const form = document.getElementById('signupForm');
-    const message = document.getElementById('message');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const country = countryEl.value;
-      const state = stateEl.value;
-      const city = cityEl.value;
-      const whatsapp = document.getElementById('whatsapp').value;
-
-      // Basic validation for WhatsApp
-      const fullPhone = countryCodeEl.textContent + whatsapp;
-      if (!/^[0-9]{8,14}$/.test(whatsapp)) {
-        message.textContent = '❌ Enter a valid WhatsApp number.';
-        message.style.color = 'red';
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:5000/api/auth/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name, email, password, country, state, city, whatsapp: fullPhone })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('userName', name);
-          localStorage.setItem('userEmail', email);
-          window.location.href = 'index.html';
-        } else {
-          message.textContent = '❌ ' + (data.error || 'Signup failed');
-          message.style.color = 'red';
-        }
-      } catch (err) {
-        console.error(err);
-        message.textContent = '❌ Network error.';
+      if (response.ok) {
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userEmail', email);
+        window.location.href = 'index.html';
+      } else {
+        message.textContent = '❌ ' + (result.error || 'Signup failed.');
         message.style.color = 'red';
       }
-    });
-  </script>
+    } catch (err) {
+      console.error(err);
+      message.textContent = '❌ Network or server error.';
+      message.style.color = 'red';
+    }
+  });
+</script>
 </body>
 </html>
