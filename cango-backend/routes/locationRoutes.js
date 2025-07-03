@@ -1,35 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
+const db = require('../config/db');// Make sure this is your MySQL connection module
 
-// Load location data from JSON
-const locationData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/locations.json'), 'utf8'));
-
-// Get countries
+// Get all countries
 router.get('/countries', (req, res) => {
-  const countries = locationData.map(c => ({ name: c.country, phone_code: c.phone_code }));
-  res.json(countries);
+  db.query('SELECT id, name, phone_code FROM countries', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
 });
 
-// Get states for a country
-router.get('/states/:country', (req, res) => {
-  const { country } = req.params;
-  const match = locationData.find(c => c.country === country);
-  if (!match) return res.status(404).json({ error: 'Country not found' });
-  res.json(match.states.map(s => s.name));
+// Get all states for a country
+router.get('/states/:countryId', (req, res) => {
+  db.query('SELECT id, name FROM states WHERE country_id = ?', [req.params.countryId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
 });
 
-// Get cities for a country and state
-router.get('/cities/:country/:state', (req, res) => {
-  const { country, state } = req.params;
-  const match = locationData.find(c => c.country === country);
-  if (!match) return res.status(404).json({ error: 'Country not found' });
-
-  const stateMatch = match.states.find(s => s.name === state);
-  if (!stateMatch) return res.status(404).json({ error: 'State not found' });
-
-  res.json(stateMatch.cities);
+// Get all cities for a state
+router.get('/cities/:stateId', (req, res) => {
+  db.query('SELECT id, name FROM cities WHERE state_id = ?', [req.params.stateId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
 });
 
 module.exports = router;
