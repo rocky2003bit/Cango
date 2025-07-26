@@ -6,8 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const db = require('./config/db');
 const adminRoutes = require('./routes/adminRoutes');
 const locationRoutes = require('./routes/locationRoutes');
-
-
+const orderRoutes = require('./routes/orderRoutes'); // ✅ Add this near the top
 dotenv.config();
 
 const app = express();
@@ -23,7 +22,8 @@ app.use(express.json());
 // ✅ API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-
+app.use('/api/orders', orderRoutes); // ✅ Add this in API routes section
+app.use('/api/location', locationRoutes); // ✅ Fixed position (moved out of inner route)
 
 // ✅ Default route should go LAST or REMOVE this entirely
 // If you keep it, do NOT let it override static
@@ -35,13 +35,7 @@ app.get('/learn', (req, res) => {
   res.sendFile(__dirname + '/public/learn.html');
 });
 
-
-// ✅ Start server
-app.listen(PORT, () => {
-  console.log(`📂 Serving static files from: ${path.join(__dirname, 'public')}`);
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
-
+// ✅ API: Get visible contents
 app.get('/api/contents', async (req, res) => {
   try {
     const [results] = await db.query("SELECT * FROM contents WHERE visible = 1 ORDER BY created_at DESC");
@@ -52,6 +46,7 @@ app.get('/api/contents', async (req, res) => {
   }
 });
 
+// ✅ API: Get content by ID
 app.get('/api/contents/:id', async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM contents WHERE id = ?", [req.params.id]);
@@ -65,6 +60,7 @@ app.get('/api/contents/:id', async (req, res) => {
   }
 });
 
+// ✅ API: Admin fetch all content
 app.get('/api/admin/contents', async (req, res) => {
   try {
     const [results] = await db.query("SELECT * FROM contents ORDER BY created_at DESC");
@@ -73,5 +69,28 @@ app.get('/api/admin/contents', async (req, res) => {
     console.error("Database error:", err);
     res.status(500).json({ error: "Failed to fetch all contents" });
   }
-  app.use('/api/location', locationRoutes);
+});
+
+// ✅ Start server
+app.listen(PORT, () => {
+  console.log(`📂 Serving static files from: ${path.join(__dirname, 'public')}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+// Get WhatsApp number by email
+app.get('/api/users/:email', (req, res) => {
+  const email = req.params.email;
+  const sql = 'SELECT name, email, whatsapp FROM users WHERE email = ?';
+
+  db.query(sql, [email], (err, result) => {
+    if (err) {
+      console.error('Error fetching user info:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(result[0]);
+  });
 });

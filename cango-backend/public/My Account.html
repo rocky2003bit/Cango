@@ -1,0 +1,168 @@
+<!-- public/account.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Account | Cango</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      margin: 0;
+    }
+    .sidebar {
+      width: 200px;
+      background: #f3f3f3;
+      padding: 20px;
+      height: 100vh;
+    }
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .sidebar button.active {
+      background: #007BFF;
+      color: white;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+    .field-label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .change-btn {
+      margin-left: 10px;
+      cursor: pointer;
+      color: blue;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <button id="personalBtn" class="active">Personal Details</button>
+    <button id="orderBtn">Order History</button>
+  </div>
+
+  <div class="content">
+    <!-- ✅ Personal Details Section -->
+    <div id="personalSection">
+      <h2>Personal Details</h2>
+      <div>
+        <p class="field-label">Name:</p>
+        <p id="userName">Loading...</p>
+
+        <p class="field-label">Email:</p>
+        <p id="userEmail">Loading...</p>
+
+        <p class="field-label">WhatsApp:</p>
+        <p id="userWhatsapp">Loading... 
+          <span class="change-btn" onclick="changeWhatsapp()">Change</span>
+        </p>
+
+        <p class="field-label">Password:</p>
+        <p>******** 
+          <span class="change-btn" onclick="changePassword()">Change Password</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ✅ Order History Section -->
+    <div id="orderSection" style="display: none;">
+      <h2>Order History</h2>
+      <div id="orderList">Loading your orders...</div>
+    </div>
+  </div>
+
+  <script>
+    // Switch tabs
+    document.getElementById("personalBtn").onclick = function () {
+      this.classList.add("active");
+      document.getElementById("orderBtn").classList.remove("active");
+      document.getElementById("personalSection").style.display = "block";
+      document.getElementById("orderSection").style.display = "none";
+    };
+
+    document.getElementById("orderBtn").onclick = function () {
+      this.classList.add("active");
+      document.getElementById("personalBtn").classList.remove("active");
+      document.getElementById("personalSection").style.display = "none";
+      document.getElementById("orderSection").style.display = "block";
+      loadOrderHistory();
+    };
+
+    // Load user data from localStorage
+    const userName = localStorage.getItem("userName");
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (userName) document.getElementById("userName").textContent = userName;
+    if (userEmail) document.getElementById("userEmail").textContent = userEmail;
+
+   // ✅ Load real user info
+ // ✅ FIXED URL
+ fetch(`/api/users/${userEmail}`)
+  .then(res => res.json())
+  .then(data => {
+    // WhatsApp Display Fix
+    const whatsappPara = document.getElementById("userWhatsapp");
+    const changeBtn = whatsappPara.querySelector(".change-btn");
+    whatsappPara.innerHTML = `${data.whatsapp || "Not set"} `;
+    whatsappPara.appendChild(changeBtn);
+
+    // Name and Email
+    document.getElementById("userName").textContent = data.name;
+    document.getElementById("userEmail").textContent = data.email;
+    document.getElementById('whatsapp').innerText = data.whatsapp;
+
+  })
+  .catch(err => {
+    console.error('Failed to load user info', err);
+    document.getElementById("userWhatsapp").textContent = "Error loading";
+  });
+
+
+
+    // Placeholder change actions
+    function changeWhatsapp() {
+      alert("Change WhatsApp Number form will open (To be implemented)");
+    }
+
+    function changePassword() {
+      alert("Change Password form will open (To be implemented)");
+    }
+
+    function loadOrderHistory() {
+      const email = localStorage.getItem("userEmail");
+      fetch(`/api/orders/${email}`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("orderList");
+          list.innerHTML = "";
+
+          if (!data.length) {
+            list.textContent = "No orders found.";
+            return;
+          }
+
+          data.forEach(order => {
+            const div = document.createElement("div");
+            div.innerHTML = `<strong>${order.title}</strong><br>Ordered on: ${new Date(order.date).toLocaleDateString()}<hr>`;
+            list.appendChild(div);
+          });
+        })
+        .catch(err => {
+          document.getElementById("orderList").textContent = "❌ Failed to load orders.";
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>
+
