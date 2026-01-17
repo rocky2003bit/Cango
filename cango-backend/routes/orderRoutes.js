@@ -18,5 +18,24 @@ router.get('/:email', async (req, res) => {
     res.status(500).json({ error: "Failed to fetch order history" });
   }
 });
+router.post('/place', async (req, res) => {
+  const { userEmail, title } = req.body;
+
+  if (!userEmail || !title) {
+    return res.status(400).json({ error: 'Missing data' });
+  }
+
+  try {
+    await db.query(
+      'INSERT INTO orders (user_email, title) VALUES (?, ?)',
+      [userEmail, title]
+    );
+    res.json({ message: 'Order placed successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to place order' });
+  }
+});
+
 
 module.exports = router;

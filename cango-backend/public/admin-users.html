@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cango Admin | User Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #333; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .back-btn { padding: 10px 20px; background: #555; color: white; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="admin-dashboard.html" class="back-btn">← Back to Dashboard</a>
+        <h2>Registered Users</h2>
+        <div id="user-list">Loading users...</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const adminEmail = localStorage.getItem("adminEmail");
+            if (!adminEmail) { window.location.href = "admin-login.html"; return; }
+
+            fetch("http://localhost:5000/api/admin/users", {
+                headers: { "x-admin-email": adminEmail }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('user-list');
+                if (data.error) { container.innerHTML = "Error: " + data.error; return; }
+
+                let html = `<table><tr><th>ID</th><th>Name</th><th>Email</th><th>WhatsApp</th><th>Created At</th></tr>`;
+                data.forEach(user => {
+                    const date = user.created_at ? new Date(user.created_at).toLocaleString() : "N/A";
+                    html += `<tr>
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.whatsapp || 'N/A'}</td>
+                        <td>${date}</td>
+                    </tr>`;
+                });
+                html += "</table>";
+                container.innerHTML = html;
+            })
+            .catch(err => console.error("Fetch error:", err));
+        });
+    </script>
+</body>
+</html>

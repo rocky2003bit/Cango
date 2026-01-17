@@ -64,10 +64,41 @@
         document.getElementById('type').textContent = data.type;
       });
 
-    function orderNow() {
-      alert("✅ Order placed successfully!");
-    }
+    
   </script>
+  <script>
+async function orderNow(title) {
+  const email = localStorage.getItem("userEmail");
+
+  if (!email) {
+    alert("❌ Please sign in first");
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/orders/place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userEmail: email,
+        title: title
+      })
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      alert("✅ Order placed successfully");
+    } else {
+      alert("❌ " + result.error);
+    }
+  } catch (err) {
+    alert("❌ Server error");
+    console.error(err);
+  }
+}
+</script>
+
 
 </body>
 </html>
