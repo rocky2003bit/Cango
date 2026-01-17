@@ -18,6 +18,8 @@
   <div id="users"></div>
   <button onclick="goToContentManager()">📦 Manage Uploaded Content</button>
   <button onclick="goToUpload()">📤 Upload New Content</button>
+  <button onclick="window.location.href='orders.html'">Orders</button>
+
 
 
 
@@ -57,51 +59,58 @@
   }
    // ... existing functions like loadDashboard()
 
-  function loadUsers() {
-    const usersDiv = document.getElementById('users');
-    usersDiv.innerHTML = "Loading users...";
+   function loadUsers() {
+  const usersDiv = document.getElementById('users');
+  usersDiv.innerHTML = "Loading users...";
 
-    fetch("http://localhost:5000/api/admin/users", {
-      headers: {
-        "x-admin-email": localStorage.getItem("adminEmail")
+  fetch("http://localhost:5000/api/admin/users", {
+    headers: {
+      "x-admin-email": localStorage.getItem("adminEmail")
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      usersDiv.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
+    } else {
+      if (data.length === 0) {
+        usersDiv.innerHTML = '<p>No users found.</p>';
+        return;
       }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        usersDiv.innerHTML = '<span class="error">Error: ' + data.error + '</span>';
-      } else {
-        if (data.length === 0) {
-          usersDiv.innerHTML = '<p>No users found.</p>';
-          return;
-        }
 
-        let tableHTML = `
-          <h3>Registered Users</h3>
-          <table border="1" cellpadding="10" style="border-collapse: collapse;">
-            <tr>
-              <th>ID</th><th>Name</th><th>Email</th><th>Is Admin?</th><th>Created At</th>
-            </tr>
+      // Added <th>WhatsApp</th> to the table header
+      let tableHTML = `
+        <h3>Registered Users</h3>
+        <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
+          <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>WhatsApp</th><th>Is Admin?</th><th>Created At</th>
+          </tr>
+      `;
+
+      data.forEach(user => {
+        // Fix for "Invalid Date": Check if created_at exists before formatting
+        const dateObj = new Date(user.created_at);
+        const formattedDate = isNaN(dateObj) ? "N/A" : dateObj.toLocaleString();
+
+        tableHTML += `
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td>${user.whatsapp || 'N/A'}</td> 
+            <td>${user.is_admin === 1 ? 'Yes' : 'No'}</td>
+            <td>${formattedDate}</td>
+          </tr>
         `;
-        data.forEach(user => {
-          tableHTML += `
-            <tr>
-              <td>${user.id}</td>
-              <td>${user.name}</td>
-              <td>${user.email}</td>
-              <td>${user.is_admin === 1 ? 'Yes' : 'No'}</td>
-              <td>${new Date(user.created_at).toLocaleString()}</td>
-            </tr>
-          `;
-        });
-        tableHTML += '</table>';
-        usersDiv.innerHTML = tableHTML;
-      }
-    })
-    .catch(err => {
-      usersDiv.innerHTML = '<span class="error">Error: ' + err + '</span>';
-    });
-  }
+      });
+      tableHTML += '</table>';
+      usersDiv.innerHTML = tableHTML;
+    }
+  })
+  .catch(err => {
+    usersDiv.innerHTML = '<span class="error">Error: ' + err + '</span>';
+  });
+}
   
     function logout() {
       localStorage.removeItem("adminEmail");

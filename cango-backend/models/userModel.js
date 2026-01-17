@@ -10,7 +10,7 @@ const createUser = async (name, email, hashedPassword, country, state, city, wha
     INSERT INTO users (name, email, password, country, state, city, whatsapp)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
-  await db.execute(sql, [name, email, hashedPassword, country, state, city, whatsapp]);
+  return await db.query(sql, [name, email, hashedPassword, country, state, city, whatsapp]);
 };
 
 module.exports = { findUserByEmail, createUser };

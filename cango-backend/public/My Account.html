@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>My Account | Cango</title>
   <style>
     body {
@@ -12,157 +12,90 @@
     }
     .sidebar {
       width: 200px;
-      background: #f3f3f3;
-      padding: 20px;
-      height: 100vh;
-    }
-    .sidebar button {
-      display: block;
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      background: white;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-    .sidebar button.active {
-      background: #007BFF;
+      background-color: #1f1f1f;
       color: white;
+      height: 100vh;
+      padding: 20px;
     }
-    .content {
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+    .main {
       flex: 1;
       padding: 20px;
+      background-color: #f9f9f9;
     }
-    .field-label {
-      font-weight: bold;
-      margin-top: 10px;
+    .account-info {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto;
     }
-    .change-btn {
-      margin-left: 10px;
+    h1 {
+      margin-top: 0;
+    }
+    .logout-btn {
+      background-color: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
       cursor: pointer;
-      color: blue;
-      text-decoration: underline;
+    }
+    .logout-btn:hover {
+      background-color: #e60000;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <button id="personalBtn" class="active">Personal Details</button>
-    <button id="orderBtn">Order History</button>
+    <h2>Cango</h2>
+    <a href="index.html">Home</a>
+    <a href="learn.html">Cango Learn</a>
+    <a href="cango-originals.html">Cango Originals</a>
+    <a href="account.html">My Account</a>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
-
-  <div class="content">
-    <!-- ✅ Personal Details Section -->
-    <div id="personalSection">
-      <h2>Personal Details</h2>
-      <div>
-        <p class="field-label">Name:</p>
-        <p id="userName">Loading...</p>
-
-        <p class="field-label">Email:</p>
-        <p id="userEmail">Loading...</p>
-
-        <p class="field-label">WhatsApp:</p>
-        <p id="userWhatsapp">Loading... 
-          <span class="change-btn" onclick="changeWhatsapp()">Change</span>
-        </p>
-
-        <p class="field-label">Password:</p>
-        <p>******** 
-          <span class="change-btn" onclick="changePassword()">Change Password</span>
-        </p>
-      </div>
-    </div>
-
-    <!-- ✅ Order History Section -->
-    <div id="orderSection" style="display: none;">
-      <h2>Order History</h2>
-      <div id="orderList">Loading your orders...</div>
+  <div class="main">
+    <div class="account-info">
+      <h1>My Account</h1>
+      <p><strong>Name:</strong> <span id="name">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+      <p><strong>WhatsApp:</strong> <span id="whatsapp">Loading...</span></p>
     </div>
   </div>
 
   <script>
-    // Switch tabs
-    document.getElementById("personalBtn").onclick = function () {
-      this.classList.add("active");
-      document.getElementById("orderBtn").classList.remove("active");
-      document.getElementById("personalSection").style.display = "block";
-      document.getElementById("orderSection").style.display = "none";
-    };
+    document.addEventListener("DOMContentLoaded", () => {
+      const name = localStorage.getItem("userName") || "Not available";
+      const email = localStorage.getItem("userEmail") || "Not available";
+      const whatsapp = localStorage.getItem("userWhatsapp") || "Not available";
 
-    document.getElementById("orderBtn").onclick = function () {
-      this.classList.add("active");
-      document.getElementById("personalBtn").classList.remove("active");
-      document.getElementById("personalSection").style.display = "none";
-      document.getElementById("orderSection").style.display = "block";
-      loadOrderHistory();
-    };
+      document.getElementById("name").textContent = name;
+      document.getElementById("email").textContent = email;
+      document.getElementById("whatsapp").textContent = whatsapp;
+    });
 
-    // Load user data from localStorage
-    const userName = localStorage.getItem("userName");
-    const userEmail = localStorage.getItem("userEmail");
-
-    if (userName) document.getElementById("userName").textContent = userName;
-    if (userEmail) document.getElementById("userEmail").textContent = userEmail;
-
-   // ✅ Load real user info
- // ✅ FIXED URL
- fetch(`/api/users/${userEmail}`)
-  .then(res => res.json())
-  .then(data => {
-    // WhatsApp Display Fix
-    const whatsappPara = document.getElementById("userWhatsapp");
-    const changeBtn = whatsappPara.querySelector(".change-btn");
-    whatsappPara.innerHTML = `${data.whatsapp || "Not set"} `;
-    whatsappPara.appendChild(changeBtn);
-
-    // Name and Email
-    document.getElementById("userName").textContent = data.name;
-    document.getElementById("userEmail").textContent = data.email;
-    document.getElementById('whatsapp').innerText = data.whatsapp;
-
-  })
-  .catch(err => {
-    console.error('Failed to load user info', err);
-    document.getElementById("userWhatsapp").textContent = "Error loading";
-  });
-
-
-
-    // Placeholder change actions
-    function changeWhatsapp() {
-      alert("Change WhatsApp Number form will open (To be implemented)");
-    }
-
-    function changePassword() {
-      alert("Change Password form will open (To be implemented)");
-    }
-
-    function loadOrderHistory() {
-      const email = localStorage.getItem("userEmail");
-      fetch(`/api/orders/${email}`)
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById("orderList");
-          list.innerHTML = "";
-
-          if (!data.length) {
-            list.textContent = "No orders found.";
-            return;
-          }
-
-          data.forEach(order => {
-            const div = document.createElement("div");
-            div.innerHTML = `<strong>${order.title}</strong><br>Ordered on: ${new Date(order.date).toLocaleDateString()}<hr>`;
-            list.appendChild(div);
-          });
-        })
-        .catch(err => {
-          document.getElementById("orderList").textContent = "❌ Failed to load orders.";
-          console.error(err);
-        });
+    function logout() {
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userWhatsapp");
+      localStorage.removeItem("userId");
+      window.location.href = "index.html";
     }
   </script>
 </body>
 </html>
-

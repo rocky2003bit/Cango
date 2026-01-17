@@ -78,19 +78,12 @@ app.listen(PORT, () => {
 });
 
 // Get WhatsApp number by email
-app.get('/api/users/:email', (req, res) => {
+ app.get('/api/users/:email', (req, res) => {
   const email = req.params.email;
   const sql = 'SELECT name, email, whatsapp FROM users WHERE email = ?';
-
   db.query(sql, [email], (err, result) => {
-    if (err) {
-      console.error('Error fetching user info:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
+    if (err) return res.status(500).json({ error: 'Internal error' });
+    if (result.length === 0) return res.status(404).json({ error: 'Not found' });
     res.json(result[0]);
   });
 });

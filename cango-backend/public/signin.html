@@ -44,6 +44,13 @@
           // ✅ Save user info in localStorage
           localStorage.setItem("userName", result.user.name);
           localStorage.setItem("userEmail", result.user.email);
+          localStorage.setItem("userCountry", result.user.country);
+          localStorage.setItem("userState", result.user.state);
+          localStorage.setItem("userCity", result.user.city);
+          localStorage.setItem("userWhatsapp", result.user.whatsapp);
+
+          
+
 
           // ✅ Redirect to homepage after short delay
           setTimeout(() => {

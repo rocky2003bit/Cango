@@ -170,6 +170,8 @@
         if (response.ok) {
           localStorage.setItem('userName', name);
           localStorage.setItem('userEmail', email);
+          // Add this line to fix the "null" issue
+          localStorage.setItem('userWhatsapp', code + whatsapp);
           window.location.href = 'index.html';
         } else {
           message.textContent = '❌ ' + (result.error || 'Signup failed.');

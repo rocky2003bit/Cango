@@ -47,7 +47,11 @@ const signin = async (req, res) => {
       message: 'Signin successful',
       user: {
         name: user.name,
-        email: user.email
+        email: user.email,
+        country: user.country,
+        state: user.state,
+        city: user.city,
+        whatsapp: user.whatsapp
       }
     });
 

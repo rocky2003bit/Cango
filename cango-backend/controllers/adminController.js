@@ -90,13 +90,18 @@ const getAdminDashboardOverview = async (req, res) => {
 };
 
  
+ // controllers/adminController.js
+
 const getAllUsers = async (req, res) => {
   try {
-    const [users] = await db.query('SELECT id, name, email FROM users');
+    // 💡 Add 'whatsapp' and 'created_at' to the SELECT statement
+    const [users] = await db.query(
+      'SELECT id, name, email, whatsapp, is_admin, created_at FROM users ORDER BY created_at DESC'
+    );
     res.json(users);
   } catch (err) {
-    console.error("Get all users error:", err);
-    res.status(500).json({ error: "Failed to fetch users" });
+    console.error("Error fetching users:", err);
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 };
 
